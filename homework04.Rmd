@@ -55,7 +55,7 @@ l(\theta) - l(\hat{\theta}) \approx -\frac{1}{2}(\theta - \hat\theta)^TJ(\hat\th
 $$
 # DAAG
 
-## Exercise 11
+## Exercise 11 cap 3
 The following data represent the total number of aberrant crypt foci (abnormal growths in
 the colon) observed in seven rats that had been administered a single dose of the carcinogen
 azoxymethane and sacrificed after six weeks (thanks to Ranjana Bird, Faculty of Human Ecology,
@@ -71,7 +71,7 @@ x <- rpois(7, 78.3)
 mean(x); var(x)
 ```
 
-## Exercise 13
+## Exercise 13 cap 3
 A Markov chain for the weather in a particular season of the year has the transition matrix, from one day to the next:
 $$
 Pb = 
@@ -105,7 +105,7 @@ plotmarkov <-
                   length=npanels+1), include.lowest=TRUE)
     df <- data.frame(av0=mav0, av1=mav1, x=1:length(mav0),
                      gp=npanel)
-    print(xyplot(av0+av1  ̃ x | gp, data=df, layout=c(1,npanels),
+    print(xyplot(av0+av1 ~ x | gp, data=df, layout=c(1,npanels),
           type="l", par.strip.text=list(cex=0.65),
           scales=list(x=list(relation="free"))))
   }
@@ -115,6 +115,24 @@ Try varying the number of simulations and the width of the window. How wide a wi
 is needed to get a good sense of the stationary distribution? This series settles down rather
 quickly to its stationary distribution (it “burns in” quite quickly). A reasonable width of
 window is, however, needed to give an accurate indication of the stationary distribution.
+
+## Exercise 6 cap 4
+Here we generate random normal numbers with a sequential dependence structure:
+```{r}
+y1 <- rnorm(51)
+y <- y1[-1] + y1[-51]
+acf(y1)
+# acf is ‘autocorrelation function’
+# (see Chapter 9)
+acf(y)
+```
+Repeat this several times. There should be no consistent pattern in the acf plot for different random samples `y1`. There will be a fairly consistent pattern in the `acf` plot for `y`, a result of the correlation that is introduced by adding to each value the next value in the sequence.
+
+## Exercise 7 cap 4
+
+Create a function that does the calculations in the first two lines of the previous exercise. Put the calculation in a loop that repeats 25 times. Calculate the mean and variance for each vector `y` that is returned. Store the 25 means in the vector `av`, and store the 25 variances in
+the vector `v`. Calculate the variance of `av`.
+
 
 # CS exercises
 
