@@ -139,17 +139,42 @@ the vector `v`. Calculate the variance of `av`.
 ## Exercise 3.3
 Rewrite the following, replacing the loop with efficient code:
 ```{r}
-n <- 100000; z <- rnorm(n)
-zneg <- 0;j <- 1
-for (i in 1:n) {
-  if (z[i]<0) {
-    zneg[j] <- z[i]
-    j <- j + 1
+
+original <-  function(n = 100000){
+  z <- rnorm(n)
+  zneg <- 0; j <- 1
+  for (i in 1:n) {
+    if (z[i]<0) {
+      zneg[j] <- z[i]
+      j <- j + 1
+    }
   }
+  return(zneg)
 }
+
+optimised <- function(n = 100000){
+  z <- rnorm(n)
+  return( Filter(function(el) el < 0, z) )
+}
+
+optimised_v2 <-  function(n = 100000) {
+  z <- rnorm(n)
+  return( z[z < 0] )
+}
+
+print( "Original: " )
+system.time(original(10000000))
+print( "Optimised: " )
+system.time(optimised(10000000))
+print("Optimised v2: ")
+system.time(optimised_v2(10000000))
+
 ```
 
 Confirm that your rewrite is faster but gives the same result (use system.time()).
+### Solution
+We proceeded with two attemps, one with the function `Filter`, which failed as it resulted in a far worst performance that the original solution.
+Our solution is contained in the function `optimised_v2` by using the expression `z[z < 0]` which returns a new array with just the negative element of `z`
 
 ## Exercise 3.5
 
