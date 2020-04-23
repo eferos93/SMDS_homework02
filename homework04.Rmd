@@ -94,6 +94,7 @@ $$
 A result called the *ergodic* theorem allows us to estimate this distribution by simulating the Markov chain for a long enough time.
 a. Simulate 1000 values, and calculate the proportion of times the chain visits each of the states. Compare the proportions given by the simulation with the above theoretical proportions.
 ```{r}
+library(dplyr)
 library(zoo)
 library(lattice)
 Markov <- function (N=100, initial.value=1, P) {
@@ -113,7 +114,7 @@ print(transitionMatrix)
 
 samples <- Markov(N = 1000, P = transitionMatrix)
 
-print("States  {0: 'Sunny', 1: 'Cloudy', 2: 'Rain'}")
+print("\nStates  {0: 'Sunny', 1: 'Cloudy', 2: 'Rain'}")
 samples %>% 
   table %>% 
   prop.table
@@ -131,10 +132,11 @@ b. Here is code that calculates rolling averages of the proportions over a numbe
 and plots the result. It uses the function rollmean() from the zoo package.
 ```{r}
 plotmarkov <-
-  function(n=10000, start=1, window=100, transition=Pb, npanels=5){
+  function(n=1000000, start=1, window=10000, transition=Pb, npanels=3){
     xc2 <- Markov(n, start, transition)
-    mav0 <- rollmean(as.integer(xc2==0), window)
-    mav1 <- rollmean(as.integer(xc2==0), window)
+    mav0 <- rollmean(as.integer(xc2==0), window) #mav0 and mav1 are equal
+    mav1 <- rollmean(as.integer(xc2==0), window) #why having two moving averages that are equal ??
+    print( Reduce("&&", mav0 == mav1) )
     npanel <- cut(1:length(mav0), breaks=seq(from=1, to=length(mav0),
                   length=npanels+1), include.lowest=TRUE)
     df <- data.frame(av0=mav0, av1=mav1, x=1:length(mav0),
