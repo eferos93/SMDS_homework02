@@ -47,7 +47,7 @@ samples_stat[2,]<- apply(samples,2,var_biased)
 sigma<-1
 
 par (mfrow=c(2,1),mar=c(4,4,2,2), oma=c(0,0,0,0))
-#-----------------
+#-----------------plot unbiased estimator
 hist(samples_stat[1, ], breaks= 40, probability = TRUE, 
 xlab=expression(s^2), main= "Unbiased variance estimator", cex.main=1.0,col="#6AE7CF",border="white")
 curve(((n-1)/sigma^2) * dchisq(x * ((n-1)/sigma^2), df = n - 1),
@@ -56,7 +56,7 @@ abline(v = sigma, col = "#FF8C45", lwd = 4)
 abline(v = mean(samples_stat[1,]), col = "#AF78CB", lwd = 2)
 legend("topright",c("True Variance","Estimated Variance Mean"),cex=.9,col=c("#FF8C45","#AF78CB"),lty=1:1)
 
-#--------------------------------------------
+#-------------------------------------------- plot biased estimator
 hist(samples_stat[2, ], breaks= 40, probability = TRUE, 
 xlab=bquote(s_b^2), main= "Biased variance estimator", cex.main=1.0,col="#6AE7CF",border="white")
 #overlap the true distribution for the sample mean
