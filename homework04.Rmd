@@ -16,6 +16,36 @@ Check the biased nature of $s^2_b$ via MC simulation, generating $n=10$ iid valu
 
 What happens if a great player decides to join you, now? Try to simulate the data and perform the test again.
 
+```{r}
+set.seed(101)
+
+#num of observations
+n <- 50
+#num of categories
+K <- 4
+#number of "players"
+m <- 6
+
+nullHypo <- c(7/16, 5/16, 3/16, 1/16)
+
+observed <- matrix(0, nrow = m, ncol = n)
+for (i in 1:m) {
+  observed[i,] <- sample(1:K, n, prob = nullHypo, replace = TRUE)
+}
+
+#p-value very high (0.8074)
+print( chisq.test( table(observed), p = nullHypo ) )
+
+# New player with better skills join
+observed <- rbind(observed, 
+                  sample(1:K, n, prob = c(1/16, 3/16, 5/16, 7/16), replace = TRUE) 
+                 )
+
+#now the p-value is incredibly low
+print(chisq.test( table(observed), p = nullHypo)  )
+```
+The p-value of the first test is very high thus, if we would set the significance level to 5%, we would not reject $H_0$, while, in the second case, after adding the observations of the good player sampled with a different probability vector (i.e. 1/16, 3/16, 5/16, 7/16) the p-value is lesser than 0.01, indicating a strong evidence against $H_0$. 
+
 ## Exercise 3
 
 Sometimes it could be useful to assess the degree of association, or correlation, between paired samples, using the Pearson, the Kendall’s $\tau$ or the Spearman’s $\rho$ correlation coefficient. Regardless of the adopted cofficient, the null hypothesis for a given correlation coefficent $\rho$ is:
