@@ -215,7 +215,7 @@ $$
 Pb = 
 \begin{bmatrix}
   & Sun & Cloud & Rain\\
-Sun & 0.6 & 0.6 & 0.2\\
+Sun & 0.6 & 0.2 & 0.2\\
 Cloud & 0.2 & 0.4 & 0.4\\
 Rain & 0.4 & 0.3 & 0.3
 \end{bmatrix}
@@ -231,14 +231,50 @@ $$
 
 A result called the *ergodic* theorem allows us to estimate this distribution by simulating the Markov chain for a long enough time.
 a. Simulate 1000 values, and calculate the proportion of times the chain visits each of the states. Compare the proportions given by the simulation with the above theoretical proportions.
+```{r}
+library(dplyr)
+library(zoo)
+library(lattice)
+Markov <- function (N=100, initial.value=1, P) {
+  X <- numeric(N)
+  X[1] <- initial.value # States {0: 'Sunny', 1: 'Cloudy', 2: 'Rainy'};
+  n <- nrow(P)
+  for (i in 2:N){
+    X[i] <- sample(1:n, size=1, prob=P[X[i-1], ])
+  }
+  X - 1
+}
+
+transitionMatrix <- 
+  matrix(data = list(0.6,0.2,0.2,0.2,0.4,0.4,0.4,0.3,0.3),
+         nrow = 3, ncol = 3, byrow = TRUE)
+print(transitionMatrix)
+
+samples <- Markov(N = 1000, P = transitionMatrix)
+
+print("\nStates  {0: 'Sunny', 1: 'Cloudy', 2: 'Rain'}")
+samples %>% 
+  table %>% 
+  prop.table
+
+#prop <- function(samples, element) {
+#  return( length(samples[samples == element]) / length(samples) )
+#}
+#print(paste("Sun:", prop(samples, 0)))
+#samples %>% prop(., 1) %>% paste("Cloud:", .)
+#samples %>% prop(., 2) %>% paste("Rain:", .)
+```
+The empirical proportions with a sample of 1000 elements are not the exact same as the theoretical ones above, but still the order is respected, namely $p(X = 0) > p(X = 1) > p(X = 2)$ and $p(X = 0)$ is significantly higher than the other two.
+
 b. Here is code that calculates rolling averages of the proportions over a number of simulations
 and plots the result. It uses the function rollmean() from the zoo package.
 ```{r}
 plotmarkov <-
-  function(n=10000, start=0, window=100, transition=Pb, npanels=5){
+  function(n=1000000, start=1, window=10000, transition=Pb, npanels=3){
     xc2 <- Markov(n, start, transition)
-    mav0 <- rollmean(as.integer(xc2==0), window)
-    mav1 <- rollmean(as.integer(xc2==0), window)
+    mav0 <- rollmean(as.integer(xc2==0), window) #mav0 and mav1 are equal
+    mav1 <- rollmean(as.integer(xc2==0), window) #why having two moving averages that are equal ??
+    print( Reduce("&&", mav0 == mav1) )
     npanel <- cut(1:length(mav0), breaks=seq(from=1, to=length(mav0),
                   length=npanels+1), include.lowest=TRUE)
     df <- data.frame(av0=mav0, av1=mav1, x=1:length(mav0),
@@ -247,6 +283,8 @@ plotmarkov <-
           type="l", par.strip.text=list(cex=0.65),
           scales=list(x=list(relation="free"))))
   }
+
+plotmarkov(transition = transitionMatrix)
 ```
 
 Try varying the number of simulations and the width of the window. How wide a window
@@ -302,17 +340,43 @@ var(av1)
 ## Exercise 3.3
 Rewrite the following, replacing the loop with efficient code:
 ```{r}
-n <- 100000; z <- rnorm(n)
-zneg <- 0;j <- 1
-for (i in 1:n) {
-  if (z[i]<0) {
-    zneg[j] <- z[i]
-    j <- j + 1
+
+original <-  function(n = 100000){
+  z <- rnorm(n)
+  zneg <- 0; j <- 1
+  for (i in 1:n) {
+    if (z[i]<0) {
+      zneg[j] <- z[i]
+      j <- j + 1
+    }
   }
+  return(zneg)
 }
+
+optimised <- function(n = 100000){
+  z <- rnorm(n)
+  return( Filter(function(el) el < 0, z) )
+}
+
+optimised_v2 <-  function(n = 100000) {
+  z <- rnorm(n)
+  return( z[z < 0] )
+}
+
+print( "Original: " )
+system.time(original(10000000))
+print( "Optimised: " )
+system.time(optimised(10000000))
+print("Optimised v2: ")
+system.time(optimised_v2(10000000))
+
 ```
 
 Confirm that your rewrite is faster but gives the same result (use system.time()).
+
+### Solution
+We proceeded with two attemps, one with the function `Filter`, which failed as it resulted in a far worst performance that the original solution.
+Our solution is contained in the function `optimised_v2` by using the expression `z[z < 0]` which returns a new array with just the negative element of `z`
 
 ## Exercise 3.5
 
