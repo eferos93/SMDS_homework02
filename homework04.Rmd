@@ -1,6 +1,12 @@
 ---
-title: "homework02"
-output: html_document
+title: "Homework02 - Group B"
+author: "Matilde Castelli -Eros Fabrici - Sebastiano Zagatti"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    fig_width: 9
+    fig_hight: 7
 ---
 
 ```{r setup, include=FALSE}
@@ -10,7 +16,60 @@ knitr::opts_chunk$set(echo = TRUE)
 # LAB
 
 ## Exercise 1
-Check the biased nature of $s^2_b$ via MC simulation, generating $n=10$ iid values from a normal distribution. Plot also $s^2$ and comment the difference.
+**Check the biased nature of $s^2_b$ via MC simulation, generating $n=10$ iid values from a normal distribution. Plot also $s^2$ and comment the difference.**
+
+```{r}
+set.seed(123)
+R <-1000
+n <- 10
+
+#sample_var_biased<-function(n){
+#  return ((1/(length(n)))*(sum(((n-mean(n))^2))))
+#}
+
+#function for the biased variance estimator
+var_biased<-function(n){
+  return (var(n)*(length(n)-1)/length(n))
+}
+
+#retun an array (n x R = 10 x 1000)
+samples <- (replicate(R,rnorm(n,0,1)))
+
+samples_stat<- array(0,c(2,R))
+#samples_stat[1,]<-apply(samples,2,mean)
+#samples_stat[3,]<-apply(samples,2,sample_var_biased)
+
+#unbiased variance
+samples_stat[1,]<-apply(samples,2, var)
+#biased estimator
+samples_stat[2,]<- apply(samples,2,var_biased)
+
+sigma<-1
+
+par (mfrow=c(2,1),mar=c(4,4,2,2), oma=c(0,0,0,0))
+#-----------------plot unbiased estimator
+hist(samples_stat[1, ], breaks= 40, probability = TRUE, 
+xlab=expression(s^2), main= "Unbiased variance estimator", cex.main=1.0,col="#6AE7CF",border="white")
+curve(((n-1)/sigma^2) * dchisq(x * ((n-1)/sigma^2), df = n - 1),
+add = TRUE, col="#368D91", lwd=2, main="N(0,1)")
+abline(v = sigma, col = "#FF8C45", lwd = 4)
+abline(v = mean(samples_stat[1,]), col = "#AF78CB", lwd = 2)
+legend("topright",c("True Variance","Estimated Variance Mean"),cex=.9,col=c("#FF8C45","#AF78CB"),lty=1:1)
+
+#-------------------------------------------- plot biased estimator
+hist(samples_stat[2, ], breaks= 40, probability = TRUE, 
+xlab=bquote(s_b^2), main= "Biased variance estimator", cex.main=1.0,col="#6AE7CF",border="white")
+#overlap the true distribution for the sample mean
+curve(((n)/sigma^2) * dchisq(x * ((n)/sigma^2), df = n - 1),
+add = TRUE, col="#368D91", lwd=2, main="N(0,1)")
+abline(v = sigma, col = "#FF8C45", lwd = 4)
+abline(v = mean(samples_stat[2,]), col = "#AF78CB", lwd = 3)
+legend("topright",c("True Variance","Estimated Variance Mean"),cex=.9,col=c("#FF8C45","#AF78CB"),lty=1:1)
+     
+```
+
+In the first plot we can see the unbiasedness visually, using a density plot of estimated variances with a line for the true variance. We can notice that the variance $s^2$ is an unbiased estimator for the population variance: the expected value or the mean of $s^2$ is equal to the true value of the variance $\sigma^2$.
+On the contrary in the second plot we can see that $s_b^2$ is a bias estimator for the population variance: the expected value or the mean of $s_b^2$ is smaller than the true variance. ($E[s_b^2]$=0.8985435 < $\sigma^2$ = 1). Indeed $E[s_b^2] = \frac{n-1}{n} \sigma^2$, and the bias is $bias(s_b^2)=E[s_b^2]- \sigma^2 = -\sigma^2/n$.
 
 ## Exercise 2
 
@@ -75,7 +134,58 @@ Consider now some of the most followed Instagram accounts in 2018: for each of t
 
 ## Exercise 4
 
-Compute analitically $J(γ,γ;y),J(γ,β;y),J(β,β;y)$.
+**Compute analitically $J(γ,γ;y),J(γ,β;y),J(β,β;y)$.**
+
+Firstly we consider a sample of iid values y from a Weibull distribution, $Y\sim We(\gamma,\beta)$ with parameter $\theta = (\gamma, \beta)$ and density function:
+$$f(y; \gamma,\beta)= \frac{\gamma}{\beta}(\frac{y}{\beta})^{\gamma-1}e^{-(\gamma/\beta)^\gamma} \text{   , y},\gamma,\beta >0$$
+We want to compute the **observed information** matrix, given by:
+$$J(\theta;y) = -\frac{\partial\ell(\theta;y)}{\partial\theta\partial\theta^T}$$
+The log-likelihood is defined as:
+$$\ell(\gamma,\beta;y) = n\log\gamma - n\gamma\log\beta + \gamma\sum_{i=1}^n\log(y_i) - \sum_{i=1}^n(\frac{y_i}{\beta})^\gamma$$
+
+The first step is to calculate the first order partial derivatives with respect to $\beta$ and $\gamma$:
+
+$$
+\begin{aligned}
+\frac{\partial}{\partial\beta}\ell(\gamma,\beta;y) &= -\frac{n}{\beta}\gamma + \frac{\gamma}{\beta^{\gamma+1}}\sum_{i=1}^n y_i^\gamma\\
+\frac{\partial\ell}{\partial\gamma}\ell(\gamma,\beta;y) &= \frac{n}{\gamma} - n\log\beta + \sum_{i=1}^n\log y_i - \sum_{i=1}^n (\frac{y_i}{\beta})^\gamma\log(\frac{y_i}{\beta})
+\end{aligned}
+$$
+
+
+Then, we compute the second partial derivatives: $\frac{\partial^2\ell}{\partial\beta^2}, \frac{\partial^2\ell}{\partial\gamma^2}$ and $\frac{\partial^2\ell}{\partial\beta\partial\gamma}$. Due to the Hessian symmetry,$\frac{\partial^2\ell}{\partial\beta\partial\gamma} = \frac{\partial^2\ell}{\partial\gamma\partial\beta}$
+
+
+$$ 
+\begin{aligned}
+\frac{\partial^2\ell}{\partial\beta^2} &= \frac{n\gamma}{\beta^2} - \frac{\gamma(\gamma + 1)}{\beta^{\gamma+2}}\sum_{i=1}^ny_i^\gamma \\[10pt]
+\frac{\partial^2\ell}{\partial\gamma^2} &= -\frac{n}{\gamma^2} - \sum_{i=1}^n (\frac{y_i}{\beta})^\gamma(\log(\frac{y_i}{\beta}))^2\\[10 pt]
+\frac{\partial^2\ell}{\partial\beta\partial\gamma} &= - \frac{n}{\beta} -\sum_{i=1}^n\frac{(y_i)^\gamma(-\gamma)}{\beta^{\gamma+1}})\log(\frac{y_i}{\beta}) + (\frac{y_i}{\beta})^\gamma(-\frac{1}{\beta}) \\[5 pt]
+&= - \frac{n}{\beta} + \sum_{i=1}^n \frac{y_i^\gamma}{\beta^{\gamma+1}}(\gamma\log(\frac{y_i}{\beta}) + 1) \\
+\end{aligned}
+$$
+ 
+
+The observed information matrix is given by: 
+$$
+\begin{equation*}
+J(\gamma,\beta;y) = 
+\begin{pmatrix}
+\frac{\partial^2\ell(\gamma,\beta)}{\partial\beta^2} & \frac{\partial^2\ell(\gamma,\beta)}{\partial\beta\partial\gamma}  \\
+\frac{\partial^2\ell(\gamma,\beta)}{\partial\gamma \partial\beta} & \frac{\partial^2\ell(\gamma,\beta)}{\partial\gamma^2} \\
+\end{pmatrix}
+\end{equation*}
+$$
+
+So in the end we have:
+$$
+\begin{aligned}
+J(γ,γ;y) &= \frac{n}{\gamma^2} + \sum_{i=1}^n (\frac{y_i}{\beta})^\gamma(\log(\frac{y_i}{\beta}))^2 \\
+J(γ,β;y) &= \frac{n}{\beta} - \sum_{i=1}^n \frac{y_i^\gamma}{\beta^{\gamma+1}}(\gamma\log(\frac{y_i}{\beta}) + 1)\\
+J(β,β;y) &= - \frac{n\gamma}{\beta^2} + \gamma(\gamma + 1)\sum_{i=1}^n\frac{y_i^\gamma}{\beta^{\gamma+2}}
+\end{aligned}
+$$
+
 
 ## Exercise 5
 
@@ -83,23 +193,51 @@ Produce the contour plot for the quadratic approximation of the log-likelihood, 
 $$
 l(\theta) - l(\hat{\theta}) \approx -\frac{1}{2}(\theta - \hat\theta)^TJ(\hat\theta)(\theta-\hat\theta)
 $$
+
 # DAAG
 
 ## Exercise 11 cap 3
-The following data represent the total number of aberrant crypt foci (abnormal growths in
-the colon) observed in seven rats that had been administered a single dose of the carcinogen
-azoxymethane and sacrificed after six weeks (thanks to Ranjana Bird, Faculty of Human Ecology,
-University of Manitoba for the use of these data):
+
+**The following data represent the total number of aberrant crypt foci (abnormal growths in the colon) observed in seven rats that had been administered a single dose of the carcinogen azoxymethane and sacrificed after six weeks (thanks to Ranjana Bird, Faculty of Human Ecology,University of Manitoba for the use of these data): **
 $$
 87 \; 53 \; 72 \; 90 \; 78 \; 85 \; 83
 $$
-Enter these data and compute their sample mean and variance. Is the Poisson model appropriate
-for these data? To investigate how the sample variance and sample mean differ under the Poisson
-assumption, repeat the following simulation experiment several times:
+**Enter these data and compute their sample mean and variance. Is the Poisson model appropriate for these data? To investigate how the sample variance and sample mean differ under the Poisson assumption, repeat the following simulation experiment several times:**
+
+**Forse istogrmma per discrete no, ma usare plot = ('h')??**
 ```{r}
-x <- rpois(7, 78.3)
-mean(x); var(x)
+data <- c(87, 53, 72, 90, 78, 85, 83)
+c(mean=mean(data), variance=var(data))
+#n = 7, lambda=78.3
+R<-1000
+n<-7
+lambda<-78.3
+x <- replicate(R, rpois(n, lambda))
+
+samples_stat<- array(0,c(2,R))
+samples_stat[1,]<-apply(x,2, mean)
+samples_stat[2,]<-apply(x,2, var)
+
+c(mean = mean(samples_stat[1,]),variance=mean(samples_stat[2,]))
+
+par (mfrow=c(2,1),mar=c(4,4,2,4), oma=c(0,0,0,0))
+#plot(min(samples_stat[1, ]): max(samples_stat[1, ]),samples_stat[1, ], type = "h" )
+hist(samples_stat[1, ], breaks= 30, probability = TRUE, 
+xlab="estimated mean", main= paste("Means of Poisson with lambda = ",lambda), cex.main=1.0, col="#6AE7CF",border="white")
+abline(v = mean(data), col = "#FF8C45", lwd = 4)
+abline(v = mean(samples_stat[2,]), col = "#AF78CB", lwd = 4)
+legend("topright",c("Data mean","Poisson Mean"),cex=.7,col=c("#FF8C45","#AF78CB"),lty=1:1)
+
+hist(samples_stat[2, ], breaks= 30, probability = TRUE, 
+xlab="estimated variance", main= paste("Variances of Poisson with lambda = ",lambda), cex.main=1.0,col="#6AE7CF",border="white")
+abline(v = var(data), col = "#FF8C45", lwd = 4)
+abline(v = mean(samples_stat[2,]), col = "#AF78CB", lwd = 4)
+legend("topright",c("Data Variance","Poisson Variance Mean"),cex=.7,col=c("#FF8C45","#AF78CB"),lty=1:1)
 ```
+
+We can notice that the mean of the Poisson variance is far away from the variance of the data, making it doubtful that these data are from Poisson distribution.
+
+
 
 ## Exercise 13 cap 3
 A Markov chain for the weather in a particular season of the year has the transition matrix, from one day to the next:
@@ -198,8 +336,33 @@ Repeat this several times. There should be no consistent pattern in the acf plot
 
 ## Exercise 7 cap 4
 
-Create a function that does the calculations in the first two lines of the previous exercise. Put the calculation in a loop that repeats 25 times. Calculate the mean and variance for each vector `y` that is returned. Store the 25 means in the vector `av`, and store the 25 variances in
-the vector `v`. Calculate the variance of `av`.
+**Create a function that does the calculations in the first two lines of the previous exercise. Put the calculation in a loop that repeats 25 times. Calculate the mean and variance for each vector `y` that is returned. Store the 25 means in the vector `av`, and store the 25 variances in the vector `v`. Calculate the variance of `av`.**
+
+```{r}
+cor_data<-function(n = 51){
+  y1 <- rnorm(n)
+  return (y1[-1] + y1[-n])
+}
+
+av<-numeric(25)
+v<- numeric(25)
+
+for (i in 1:25){
+  z<-cor_data()
+  av[i]<- mean(z)
+  v[i]<- var(z)
+}
+var(av)
+
+#2 method 
+av1<-numeric(25)
+v1<- numeric(25)
+av1<-replicate(25,mean(cor_data()))
+v1<-replicate(25,var(cor_data()))
+var(av1)
+
+```
+
 
 
 # CS exercises
