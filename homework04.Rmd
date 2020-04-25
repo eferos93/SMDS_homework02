@@ -519,6 +519,25 @@ acf(y)
 ```
 Repeat this several times. There should be no consistent pattern in the acf plot for different random samples `y1`. There will be a fairly consistent pattern in the `acf` plot for `y`, a result of the correlation that is introduced by adding to each value the next value in the sequence.
 
+### Solution:
+```{r}
+y1 <- array(0, c(10,51))
+y <- array(0,c(10,50))
+
+for (i in 1:10) {
+  y1[i ,] <- rnorm(51)
+  y[i ,] <- y1[i,-1] + y1[i,-51]
+}
+
+for (i in 1:10) {
+acf(y1[i, ])
+}
+
+for (i in 1:10) {
+  acf(y[i, ])
+}
+```
+
 ## Exercise 7 cap 4
 
 **Create a function that does the calculations in the first two lines of the previous exercise. Put the calculation in a loop that repeats 25 times. Calculate the mean and variance for each vector `y` that is returned. Store the 25 means in the vector `av`, and store the 25 variances in the vector `v`. Calculate the variance of `av`.**
@@ -614,3 +633,32 @@ the solution).
 long this takes and assess the mean absolute error of the result.
 
 4. What do you conclude?
+
+### Solution:
+```{r}
+manual <-  function(n) {
+  set.seed(0)
+  A <- matrix(runif(n*n),n,n)
+  x.true <- runif(n)
+  y <- as.vector(A%*%x.true)
+  A_inv <- solve(A)
+  x_1 <-  as.vector(A_inv%*%y)
+  err1 <- mean(abs(x_1-x.true))
+  print(err1)
+  return(x_1)
+}
+system.time(manual(1000))
+
+auto <- function(n){
+  set.seed(0)
+  A <- matrix(runif(n*n),n,n)
+  x.true <- runif(n)
+  y <- as.vector(A%*%x.true)
+  x_2 <- solve(A,y)
+  err2 <- mean(abs(x_2-x.true))
+  print(err2)
+  return(x_2)
+}
+system.time(auto(1000))
+```
+We can conclude that computing the inverse matrix $A^{-1}$ and then explicitly find $x_1$ is less time efficient and results in a greter error when compared with using \mathbf{solve} to directly solve for $x$ without computing the inverse matrix.
