@@ -133,10 +133,7 @@ legend("topright",c("True Variance","Estimated Variance Mean"),cex=.9,col=c("#FF
 
 plot(size,abs(bias), type="o", col="blue",xlab="sample size")
 
-
-
 ```
-
 
 ## Exercise 2
 
@@ -189,15 +186,48 @@ p = 2Pr_{H_0}(T \geq |t_{obs}|)
 $$
 Consider now some of the most followed Instagram accounts in 2018: for each of the owners, we report also the number of Twitter followers (in milions). Are the Instagram and Twitter account somehow associated? Perform a correlation test, compute the p-value and give an answer. Here is the dataframe.
 
-```{r}
- Owners <- c( "Katy Perry", "Justin Bieber", "Taylor Swift", "Cristiano Ronaldo",
-                   "Kim Kardashian", "Ariana Grande", "Selena Gomez", "Demi Lovato")
-      Instagram <- c( 69, 98,107, 123, 110, 118, 135, 67)
-      Twitter <- c( 109, 106, 86, 72, 59, 57, 56, 56)
-      plot( Instagram, Twitter, pch=21, bg=2, xlim=c(60, 150), ylim=c(40, 120) )
-      text( Instagram[-6], Twitter[-6]+5, Owners[-6], cex=0.8 )
-      text( Instagram[6], Twitter[6]-5, Owners[6], cex=0.8 )
+### Solution:
+```{r, echo=TRUE}
+Owners <- c( "Katy Perry", "Justin Bieber", "Taylor Swift", "Cristiano Ronaldo",
+             "Kim Kardashian", "Ariana Grande", "Selena Gomez", "Demi Lovato")
+Instagram <- c( 69, 98,107, 123, 110, 118, 135, 67)
+Twitter <- c( 109, 106, 86, 72, 59, 57, 56, 56)
+plot( Instagram, Twitter, pch=21, bg=2, xlim=c(60, 150), ylim=c(40, 120) )
+text( Instagram[-6], Twitter[-6]+5, Owners[-6], cex=0.8 )
+text( Instagram[6], Twitter[6]-5, Owners[6], cex=0.8 )
+
+#**Manual Computation of the p-value:**
+
+n <- length(Instagram)
+#compute Pearson's correlation coefficient
+r <- ((n*sum(Instagram*Twitter))-(sum(Instagram)*sum(Twitter)))/((sqrt((n*sum(Instagram^2))-(sum(Instagram))^2))*(sqrt((n*sum(Twitter^2))-(sum(Twitter))^2)))
+#compute the test statistic
+x <- r*sqrt((n-2)/(1-r^2))
+#compute the p-value
+a <- pt(x, df =n-2, lower.tail =FALSE )
+p <- 2*(1-a)
+p
+
+#**Correlation test (Pearson) using the built in R function**
+t <- cor.test(Instagram, Twitter,
+         alternative = "two.sided",
+         method = "pearson", conf.level = 0.95)
+t
+
+#**Display acceptance and rejection regions**
+curve(dt(x,6),xlim=c(-5,5), ylim=c(0,0.4),
+      main="p-value and rejection region", col = "blue", lwd = 2, xlab="x-y",  ylab=expression(t[6]),  yaxs="i")
+cord.x <- c(qt(0.95,6),seq(qt(0.95,6), 5, 0.01), 5)
+cord.y <- c(0,dt(seq(qt(0.95,6), 5, 0.01),6),0)
+polygon(cord.x,cord.y,col="pink", border = NA )
+curve(dt(x,6),xlim=c(-5,5),main=expression(t[6]), col = "blue", lwd = 2, add = TRUE, yaxs="i")
+abline(v =t$statistic, lty=2, lwd=2, col="red")
+text (0,0.2, paste("Accept", expression(H0)))
+text (2.7,0.08, paste("Reject", expression(H0)))
+text(as.double(t$statistic)-0.15, 0.02, "t", col="red", cex=1.2)
+
 ```
+The p-value has been computed both manually and using the built-in $\mathsf{R}$ function. As displayed in the code, the p-value is almost 6 times greater than the significance level $\alpha=0.05$, so the null hypothesis $H_0: \rho = 0$ is not rejected, meaning that there is no correlation between the two datasets.
 
 ## Exercise 4
 
