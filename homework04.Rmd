@@ -22,11 +22,6 @@ knitr::opts_chunk$set(echo = TRUE)
 set.seed(123)
 R <-1000
 n <- 10
-
-#sample_var_biased<-function(n){
-#  return ((1/(length(n)))*(sum(((n-mean(n))^2))))
-#}
-
 #function for the biased variance estimator
 var_biased<-function(n){
   return (var(n)*(length(n)-1)/length(n))
@@ -37,7 +32,6 @@ samples <- (replicate(R,rnorm(n,0,1)))
 
 samples_stat<- array(0,c(2,R))
 #samples_stat[1,]<-apply(samples,2,mean)
-#samples_stat[3,]<-apply(samples,2,sample_var_biased)
 
 #unbiased variance
 samples_stat[1,]<-apply(samples,2, var)
@@ -75,6 +69,74 @@ legend("topright", c("True Variance","Estimated Variance Mean"),
 
 In the first plot we can see the unbiasedness visually, using a density plot of estimated variances with a line for the true variance. We can notice that the variance $s^2$ is an unbiased estimator for the population variance: the expected value or the mean of $s^2$ is equal to the true value of the variance $\sigma^2$.
 On the contrary in the second plot we can see that $s_b^2$ is a bias estimator for the population variance: the expected value or the mean of $s_b^2$ is smaller than the true variance. ($E[s_b^2]$=0.8985435 < $\sigma^2$ = 1). Indeed $E[s_b^2] = \frac{n-1}{n} \sigma^2$, and the bias is $bias(s_b^2)=E[s_b^2]- \sigma^2 = -\sigma^2/n$.
+
+
+```{r}
+set.seed(123)
+R <-1000
+n <- 10
+sigma<-1
+
+var_biased<-function(n){
+  return (var(n)*(length(n)-1)/length(n))
+}
+sampvals <- function(n)(rnorm(n,0,1))
+samplingDist <- function(sampsize=10, nsamp=1000, FUN=var_biased)
+apply(matrix(sampvals(sampsize*nsamp), ncol=sampsize), 1, FUN)
+
+size <- c(10,30,60,100)
+
+df <- data.frame(y1=samplingDist(sampsize=size[1]),
+y2=samplingDist(sampsize=size[2]),
+y3=samplingDist(sampsize=size[3]),
+y4=samplingDist(sampsize=size[4]))
+
+
+bias<-colMeans(df)-sigma
+
+par (mfrow=c(2,2),mar=c(4,4,2,2), oma=c(0,0,0,0))
+hist(df$y1, breaks= 40, probability = TRUE, 
+xlab=bquote(s_b^2), main= "Biased variance estimator n=10", cex.main=1.0,col="#6AE7CF",border="white")
+#overlap the true distribution for the sample mean
+#curve(((n)/sigma^2) * dchisq(x * ((n)/sigma^2), df = n - 1),
+#add = TRUE, col="#368D91", lwd=2, main="N(0,1)")
+abline(v = sigma, col = "#FF8C45", lwd = 4)
+abline(v = mean(df$y1), col = "#AF78CB", lwd = 3)
+legend("topright",c("True Variance","Estimated Variance Mean"),cex=.9,col=c("#FF8C45","#AF78CB"),lty=1:1)
+
+hist(df$y2, breaks= 40, probability = TRUE, 
+xlab=bquote(s_b^2), main= "Biased variance estimator n=30", cex.main=1.0,col="#6AE7CF",border="white")
+#overlap the true distribution for the sample mean
+#curve(((n)/sigma^2) * dchisq(x * ((n)/sigma^2), df = n - 1),
+#add = TRUE, col="#368D91", lwd=2, main="N(0,1)")
+abline(v = sigma, col = "#FF8C45", lwd = 4)
+abline(v = mean(df$y2), col = "#AF78CB", lwd = 3)
+legend("topright",c("True Variance","Estimated Variance Mean"),cex=.9,col=c("#FF8C45","#AF78CB"),lty=1:1)
+
+hist(df$y3, breaks= 40, probability = TRUE, 
+xlab=bquote(s_b^2), main= "Biased variance estimator n=60", cex.main=1.0,col="#6AE7CF",border="white")
+#overlap the true distribution for the sample mean
+#curve(((n)/sigma^2) * dchisq(x * ((n)/sigma^2), df = n - 1),
+#add = TRUE, col="#368D91", lwd=2, main="N(0,1)")
+abline(v = sigma, col = "#FF8C45", lwd = 4)
+abline(v = mean(df$y3), col = "#AF78CB", lwd = 3)
+legend("topright",c("True Variance","Estimated Variance Mean"),cex=.9,col=c("#FF8C45","#AF78CB"),lty=1:1)
+
+hist(df$y4, breaks= 40, probability = TRUE, 
+xlab=bquote(s_b^2), main= paste("Biased variance estimator n = 100"), cex.main=1.0,col="#6AE7CF",border="white")
+#overlap the true distribution for the sample mean
+#curve(((n)/sigma^2) * dchisq(x * ((n)/sigma^2), df = n - 1),
+#add = TRUE, col="#368D91", lwd=2, main="N(0,1)")
+abline(v = sigma, col = "#FF8C45", lwd = 4)
+abline(v = mean(df$y4), col = "#AF78CB", lwd = 3)
+legend("topright",c("True Variance","Estimated Variance Mean"),cex=.9,col=c("#FF8C45","#AF78CB"),lty=1:1)
+
+plot(size,abs(bias), type="o", col="blue",xlab="sample size")
+
+
+
+```
+
 
 ## Exercise 2
 
@@ -298,8 +360,6 @@ $$
 87 \; 53 \; 72 \; 90 \; 78 \; 85 \; 83
 $$
 **Enter these data and compute their sample mean and variance. Is the Poisson model appropriate for these data? To investigate how the sample variance and sample mean differ under the Poisson assumption, repeat the following simulation experiment several times:**
-
-**Forse istogrmma per discrete no, ma usare plot = ('h')??**
 ```{r}
 data <- c(87, 53, 72, 90, 78, 85, 83)
 c(mean=mean(data), variance=var(data))
