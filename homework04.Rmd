@@ -187,7 +187,7 @@ $$
 Consider now some of the most followed Instagram accounts in 2018: for each of the owners, we report also the number of Twitter followers (in milions). Are the Instagram and Twitter account somehow associated? Perform a correlation test, compute the p-value and give an answer. Here is the dataframe.
 
 ### Solution:
-```{r, echo=TRUE}
+```{r}
 Owners <- c( "Katy Perry", "Justin Bieber", "Taylor Swift", "Cristiano Ronaldo",
              "Kim Kardashian", "Ariana Grande", "Selena Gomez", "Demi Lovato")
 Instagram <- c( 69, 98,107, 123, 110, 118, 135, 67)
@@ -291,6 +291,7 @@ $$
 l(\theta) - l(\hat{\theta}) \approx -\frac{1}{2}(\theta - \hat\theta)^TJ(\hat\theta)(\theta-\hat\theta)
 $$
 ```{r}
+library(dplyr) # %>% operator
 y <- c(155.9, 200.2, 143.8, 150.1,152.1, 142.2, 147, 146, 146,
  170.3, 148, 140, 118, 144, 97)
 n <- length(y)
@@ -381,6 +382,7 @@ image(gamma, beta, quadratricApproxValues, zlim=c(-6, 0),
       ylab=expression(beta))
 title("Weibull quandratic approx of the log-likelihood")
 ```
+
 # DAAG
 
 ## Exercise 11 cap 3
@@ -479,7 +481,7 @@ samples %>%
 #samples %>% prop(., 1) %>% paste("Cloud:", .)
 #samples %>% prop(., 2) %>% paste("Rain:", .)
 ```
-The empirical proportions with a sample of 1000 elements are not the exact same as the theoretical ones above, but still the order is respected, namely $p(X = 0) > p(X = 1) > p(X = 2)$ and $p(X = 0)$ is significantly higher than the other two.
+The empirical proportions with a sample of 1000 elements are not the exact same as the theoretical ones above, as a 1000 elements is not enough for showing the ergodicity theorem. Still, the order is respected (most of the times), namely $p(X = 0) > p(X = 1) > p(X = 2)$ and $p(X = 0)$ is significantly higher and the remaing two are closer to each other.
 
 b. Here is code that calculates rolling averages of the proportions over a number of simulations
 and plots the result. It uses the function rollmean() from the zoo package.
@@ -523,17 +525,18 @@ Repeat this several times. There should be no consistent pattern in the acf plot
 ```{r}
 y1 <- array(0, c(10,51))
 y <- array(0,c(10,50))
+n <- 10
 
-for (i in 1:10) {
+for (i in 1:n) {
   y1[i ,] <- rnorm(51)
   y[i ,] <- y1[i,-1] + y1[i,-51]
 }
 
-for (i in 1:10) {
-acf(y1[i, ])
+for (i in 1:n) {
+  acf(y1[i, ])
 }
 
-for (i in 1:10) {
+for (i in 1:n) {
   acf(y[i, ])
 }
 ```
