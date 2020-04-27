@@ -67,7 +67,7 @@ legend("topright", c("True Variance","Estimated Variance Mean"),
      
 ```
 
-In the first plot we can see the unbiasedness visually, using a density plot of estimated variances with a line for the true variance. We can notice that the variance $s^2$ is an unbiased estimator for the population variance: the expected value or the mean of $s^2$ is equal to the true value of the variance $\sigma^2$.
+In the first plot we can see the unbiasedness visually, using a density plot of estimated variances with a line for the true variance. We can notice that the variance $s^2$ is an unbiased estimator for the population variance: the expected value or the mean of $s^2$ is very close to the true value of the variance $\sigma^2$.
 On the contrary in the second plot we can see that $s_b^2$ is a bias estimator for the population variance: the expected value or the mean of $s_b^2$ is smaller than the true variance. ($E[s_b^2]$=0.8985435 < $\sigma^2$ = 1). Indeed $E[s_b^2] = \frac{n-1}{n} \sigma^2$, and the bias is $bias(s_b^2)=E[s_b^2]- \sigma^2 = -\sigma^2/n$.
 
 
@@ -93,47 +93,24 @@ y4=samplingDist(sampsize=size[4]))
 
 
 bias<-colMeans(df)-sigma
-
 par (mfrow=c(2,2),mar=c(4,4,2,2), oma=c(0,0,0,0))
-hist(df$y1, breaks= 40, probability = TRUE, 
-xlab=bquote(s_b^2), main= "Biased variance estimator n=10", cex.main=1.0,col="#6AE7CF",border="white")
-#overlap the true distribution for the sample mean
-#curve(((n)/sigma^2) * dchisq(x * ((n)/sigma^2), df = n - 1),
-#add = TRUE, col="#368D91", lwd=2, main="N(0,1)")
-abline(v = sigma, col = "#FF8C45", lwd = 4)
-abline(v = mean(df$y1), col = "#AF78CB", lwd = 3)
-legend("topright",c("True Variance","Estimated Variance Mean"),cex=.9,col=c("#FF8C45","#AF78CB"),lty=1:1)
+for(i in 1:4){
 
-hist(df$y2, breaks= 40, probability = TRUE, 
-xlab=bquote(s_b^2), main= "Biased variance estimator n=30", cex.main=1.0,col="#6AE7CF",border="white")
-#overlap the true distribution for the sample mean
-#curve(((n)/sigma^2) * dchisq(x * ((n)/sigma^2), df = n - 1),
-#add = TRUE, col="#368D91", lwd=2, main="N(0,1)")
+hist(df[,i], breaks= 40, probability = TRUE, 
+xlab=bquote(s_b^2), main= paste("Biased variance estimator n= ", size[i]), cex.main=1.0,col="#6AE7CF",border="white")
 abline(v = sigma, col = "#FF8C45", lwd = 4)
-abline(v = mean(df$y2), col = "#AF78CB", lwd = 3)
+abline(v = mean(df[,i]), col = "#AF78CB", lwd = 3)
 legend("topright",c("True Variance","Estimated Variance Mean"),cex=.9,col=c("#FF8C45","#AF78CB"),lty=1:1)
+}
 
-hist(df$y3, breaks= 40, probability = TRUE, 
-xlab=bquote(s_b^2), main= "Biased variance estimator n=60", cex.main=1.0,col="#6AE7CF",border="white")
-#overlap the true distribution for the sample mean
-#curve(((n)/sigma^2) * dchisq(x * ((n)/sigma^2), df = n - 1),
-#add = TRUE, col="#368D91", lwd=2, main="N(0,1)")
-abline(v = sigma, col = "#FF8C45", lwd = 4)
-abline(v = mean(df$y3), col = "#AF78CB", lwd = 3)
-legend("topright",c("True Variance","Estimated Variance Mean"),cex=.9,col=c("#FF8C45","#AF78CB"),lty=1:1)
 
-hist(df$y4, breaks= 40, probability = TRUE, 
-xlab=bquote(s_b^2), main= paste("Biased variance estimator n = 100"), cex.main=1.0,col="#6AE7CF",border="white")
-#overlap the true distribution for the sample mean
-#curve(((n)/sigma^2) * dchisq(x * ((n)/sigma^2), df = n - 1),
-#add = TRUE, col="#368D91", lwd=2, main="N(0,1)")
-abline(v = sigma, col = "#FF8C45", lwd = 4)
-abline(v = mean(df$y4), col = "#AF78CB", lwd = 3)
-legend("topright",c("True Variance","Estimated Variance Mean"),cex=.9,col=c("#FF8C45","#AF78CB"),lty=1:1)
-
-plot(size,abs(bias), type="o", col="blue",xlab="sample size")
+plot(size,abs(bias), main = "Bias-sample size", type="o", col="blue",xlab="sample size")
 
 ```
+
+For large sample size we can see that we can also rely on the biased estimator $s_b^2$. As the sample size increases the mean of $s_b^2$ get closer and closer to the true population variance and to the value of the unbiased estimator $s^2$, since the difference between $n$ and $n-1$ becomes negligible.
+
+
 
 ## Exercise 2
 
