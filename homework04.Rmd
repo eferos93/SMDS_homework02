@@ -103,7 +103,7 @@ abline(v = mean(df[,i]), col = "#AF78CB", lwd = 3)
 legend("topright",c("True Variance","Estimated Variance Mean"),cex=.9,col=c("#FF8C45","#AF78CB"),lty=1:1)
 }
 
-
+par (mfrow=c(1,1),mar=c(4,4,2,2), oma=c(1,1,1,1))
 plot(size,abs(bias), main = "Bias-sample size", type="o", col="blue",xlab="sample size")
 
 ```
@@ -210,7 +210,7 @@ The p-value has been computed both manually and using the built-in $\mathsf{R}$ 
 **Compute analitically $J(γ,γ;y),J(γ,β;y),J(β,β;y)$.**
 
 Firstly we consider a sample of iid values y from a Weibull distribution, $Y\sim We(\gamma,\beta)$ with parameter $\theta = (\gamma, \beta)$ and density function:
-$$f(y; \gamma,\beta)= \frac{\gamma}{\beta}(\frac{y}{\beta})^{\gamma-1}e^{-(\gamma/\beta)^\gamma} \text{   , y},\gamma,\beta >0$$
+$$f(y; \gamma,\beta)= \frac{\gamma}{\beta}(\frac{y}{\beta})^{\gamma-1}e^{-(y/\beta)^\gamma} \text{   , y},\gamma,\beta >0$$
 We want to compute the **observed information** matrix, given by:
 $$J(\theta;y) = -\frac{\partial\ell(\theta;y)}{\partial\theta\partial\theta^T}$$
 The log-likelihood is defined as:
@@ -244,21 +244,67 @@ $$
 \begin{equation*}
 J(\gamma,\beta;y) = -
 \begin{pmatrix}
-\frac{\partial^2\ell(\gamma,\beta)}{\partial\beta^2} & \frac{\partial^2\ell(\gamma,\beta)}{\partial\beta\partial\gamma}  \\
-\frac{\partial^2\ell(\gamma,\beta)}{\partial\gamma \partial\beta} & \frac{\partial^2\ell(\gamma,\beta)}{\partial\gamma^2} \\
+\frac{\partial^2\ell(\gamma,\beta)}{\partial\gamma^2} & \frac{\partial^2\ell(\gamma,\beta)}{\partial\beta\partial\gamma}  \\
+\frac{\partial^2\ell(\gamma,\beta)}{\partial\gamma \partial\beta} & \frac{\partial^2\ell(\gamma,\beta)}{\partial\beta^2} \\
 \end{pmatrix}
 \end{equation*}
 $$
 
 So in the end we have:
 $$
+\begin{equation*}
+J(\gamma,\beta;y) =
+\begin{pmatrix}
+\frac{n}{\gamma^2} + \sum_{i=1}^n (\frac{y_i}{\beta})^\gamma(\log(\frac{y_i}{\beta}))^2 &  \frac{n}{\beta} - \sum_{i=1}^n \frac{y_i^\gamma}{\beta^{\gamma+1}}(\gamma\log(\frac{y_i}{\beta}) + 1)  \\
+\frac{n}{\beta} - \sum_{i=1}^n \frac{y_i^\gamma}{\beta^{\gamma+1}}(\gamma\log(\frac{y_i}{\beta}) + 1) &  -\frac{n\gamma}{\beta^2} + \frac{\gamma(\gamma + 1)}{\beta^{\gamma+2}}\sum_{i=1}^ny_i^\gamma \\
+\end{pmatrix}
+\end{equation*}
+$$
+For the other 2 matrices the Weibull distributions change as follow:
+$$f(y; \gamma,\gamma)= \left( \frac{y}{\gamma}\right)^{\gamma-1}e^{-(y/\gamma)^\gamma} \text{   , y},\gamma >0$$
+$$f(y; \beta,\beta)= \left( \frac{y}{\beta}\right)^{\beta-1}e^{-(y/\beta)^\beta} \text{   , y},\beta >0$$
+The log-likelihood functions are:
+$$
 \begin{aligned}
-J(γ,γ;y) &= \frac{n}{\gamma^2} + \sum_{i=1}^n (\frac{y_i}{\beta})^\gamma(\log(\frac{y_i}{\beta}))^2 \\
-J(γ,β;y) &= \frac{n}{\beta} - \sum_{i=1}^n \frac{y_i^\gamma}{\beta^{\gamma+1}}(\gamma\log(\frac{y_i}{\beta}) + 1)\\
-J(β,β;y) &= - \frac{n\gamma}{\beta^2} + \gamma(\gamma + 1)\sum_{i=1}^n\frac{y_i^\gamma}{\beta^{\gamma+2}}
+\ell(\gamma,\gamma;y)&= (\gamma -1)\sum_{i=1}^{n}log(y/\gamma)-\sum_{i=1}^n(y/\gamma)^\gamma = (\gamma-1)\sum_{i=1}^nlog(y_i)-n(\gamma-1)log(\gamma) - \sum_{i=1}^n(y/\gamma)^\gamma \\[10pt]
+\ell(\beta,\beta;y)&= (\beta-1)\sum_{i=1}^nlog(y_i)-n(\beta-1)log(\beta) - \sum_{i=1}^n(y/\beta)^\beta\\[10pt]
 \end{aligned}
 $$
+The first order partial derivatives are:
 
+$$
+\frac{\partial}{\partial\gamma}\ell(\gamma,\gamma;y) = \sum_{i=1}^n log(y_i)-nlog(\gamma)-\frac{n(\gamma-1)}{\gamma}-\sum_{i=1}^n(y_i/\gamma)^\gamma(log(y_i/\gamma)-1)
+$$
+$$
+\frac{\partial}{\partial\beta}\ell(\beta,\beta;y) = \sum_{i=1}^n log(y_i)-nlog(\beta)-\frac{n(\beta-1)}{\beta}-\sum_{i=1}^n(y_i/\beta)^\beta(log(y_i/\beta)-1)
+$$
+And the Second order partial derivatives:
+$$
+\begin{aligned}
+\frac{\partial^2}{\partial\gamma^2}\ell(\gamma,\gamma;y)&=-\frac{n}{\gamma}(\frac{1}{\gamma}+1)-\sum_{i=1}^n(y_i/\gamma)^\gamma\left[\left(log\left(\frac{y_i}{\gamma}\right)-1\right)^2-\frac{1}{\gamma}\right]\\[10pt]
+\frac{\partial^2}{\partial\beta^2}\ell(\beta,\beta;y)&=-\frac{n}{\beta}(\frac{1}{\beta}+1)-\sum_{i=1}^n(y_i/\beta)^\beta\left[\left(log\left(\frac{y_i}{\beta}\right)-1\right)^2-\frac{1}{\beta}\right]
+\end{aligned}
+$$
+Therefore the other two observed information matrices are:
+$$
+\begin{equation*}
+J(\gamma,\gamma;y) = \frac{n}{\gamma}(\frac{1}{\gamma}+1)+\sum_{i=1}^n(y_i/\gamma)^\gamma\left[\left(log\left(\frac{y_i}{\gamma}\right)-1\right)^2-\frac{1}{\gamma}\right]
+\begin{pmatrix}
+1 & 1  \\
+1 & 1 \\
+\end{pmatrix}
+\end{equation*} \\
+$$
+
+$$
+\begin{equation*}
+J(\beta,\beta;y) = \frac{n}{\beta}(\frac{1}{\beta}+1)+\sum_{i=1}^n(y_i/\beta)^\beta\left[\left(log\left(\frac{y_i}{\beta}\right)-1\right)^2-\frac{1}{\beta}\right]
+\begin{pmatrix}
+1 & 1  \\
+1 & 1 \\
+\end{pmatrix}
+\end{equation*}
+$$
 
 ## Exercise 5
 
