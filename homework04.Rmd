@@ -71,7 +71,7 @@ R <-1000
 n <- 10
 sigma<-1
 
-var_biased<-function(n){
+var_biased <- function(n){
   return (var(n)*(length(n)-1)/length(n))
 }
 sampvals <- function(n)(rnorm(n,0,1))
@@ -315,42 +315,42 @@ log_lik_weibull <- function(data, param){
   -sum(dweibull(data, shape = param[1], scale = param[2], log = TRUE))
 }
  #define parameters grid
- gamma <- seq(0.1, 15, length=100)
- beta <- seq(100,200, length=100)
- parvalues <- expand.grid(gamma,beta)
- llikvalues <- apply(parvalues, 1, log_lik_weibull, data=y)
- llikvalues <- matrix(-llikvalues, nrow=length(gamma), 
+gamma <- seq(0.1, 15, length=100)
+beta <- seq(100,200, length=100)
+parvalues <- expand.grid(gamma,beta)
+llikvalues <- apply(parvalues, 1, log_lik_weibull, data=y)
+llikvalues <- matrix(-llikvalues, nrow=length(gamma), 
                       ncol=length(beta), byrow=F)
- conf.levels <- c(0,0.5,0.75,0.9,0.95,0.99)
+conf.levels <- c(0,0.5,0.75,0.9,0.95,0.99)
  
- #contour plot
- contour(gamma, beta, llikvalues-max(llikvalues),
-         levels=-qchisq(conf.levels, 2)/2,
-         xlab=expression(gamma),
-         labels=as.character(conf.levels),
-         ylab=expression(beta))
- title('Weibull relative log likelihood')
+#contour plot
+contour(gamma, beta, llikvalues-max(llikvalues),
+        levels=-qchisq(conf.levels, 2)/2,
+        xlab=expression(gamma),
+        labels=as.character(conf.levels),
+        ylab=expression(beta))
+title('Weibull relative log likelihood')
 
- gammahat <- uniroot(
+gammahat <- uniroot(
   function(x) n/x+sum(log(y))-n*sum(y^x*log(y))/sum(y^x), 
   c(1e-5,15))$root
 
- betahat<- mean(y^gammahat)^(1/gammahat)
- weib.y.mle<-c(gammahat,betahat)
- #first element is the MLE for the shape gamma, second element the MLE for the scale beta
- print(weib.y.mle)
+betahat<- mean(y^gammahat)^(1/gammahat)
+weib.y.mle<-c(gammahat,betahat)
+#first element is the MLE for the shape gamma, second element the MLE for the scale beta
+print(weib.y.mle)
  
- #observed information matrix
- jhat <- matrix(NA,nrow=2,ncol=2)
- jhat[1,1] <- n/gammahat^2+sum((y/betahat)^gammahat*(log(y/betahat))^2)
- jhat[1,2] <-
- jhat[2,1] <- 
-   n/betahat-sum(y^gammahat/betahat^(gammahat+1)*(gammahat*log(y/betahat)+1))
- jhat[2,2]<- -n*gammahat/betahat^2+gammahat*(gammahat+1)/
+#observed information matrix
+jhat <- matrix(NA,nrow=2,ncol=2)
+jhat[1,1] <- n/gammahat^2+sum((y/betahat)^gammahat*(log(y/betahat))^2)
+jhat[1,2] <-
+jhat[2,1] <- 
+ n/betahat-sum(y^gammahat/betahat^(gammahat+1)*(gammahat*log(y/betahat)+1))
+jhat[2,2]<- -n*gammahat/betahat^2+gammahat*(gammahat+1)/
              betahat^(gammahat+2)*sum(y^gammahat)
- infoMatrix <- solve(jhat)
-  mle.se <- infoMatrix %>% diag %>% sqrt
-  print(mle.se)
+infoMatrix <- solve(jhat)
+mle.se <- infoMatrix %>% diag %>% sqrt
+print(mle.se)
 ```
 ```{r}
 # Computing and plotting the quadratic approximation of the
@@ -403,7 +403,7 @@ title("Weibull quandratic approx of the log-likelihood")
 
 ## Exercise 11 cap 3
 
-**The following data represent the total number of aberrant crypt foci (abnormal growths in the colon) observed in seven rats that had been administered a single dose of the carcinogen azoxymethane and sacrificed after six weeks (thanks to Ranjana Bird, Faculty of Human Ecology,University of Manitoba for the use of these data): **
+**The following data represent the total number of aberrant crypt foci (abnormal growths in the colon) observed in seven rats that had been administered a single dose of the carcinogen azoxymethane and sacrificed after six weeks (thanks to Ranjana Bird, Faculty of Human Ecology, University of Manitoba for the use of these data): **
 $$
 87 \; 53 \; 72 \; 90 \; 78 \; 85 \; 83
 $$
@@ -423,12 +423,12 @@ samples_stat[2,]<-apply(x,2, var)
 
 c(mean = mean(samples_stat[1,]),variance=mean(samples_stat[2,]))
 
-par (mfrow=c(2,1),mar=c(4,4,2,4), oma=c(0,0,0,0))
+par (mfrow=c(2,1), mar=c(4,4,2,4), oma=c(0,0,0,0))
 #plot(min(samples_stat[1, ]): max(samples_stat[1, ]),samples_stat[1, ], type = "h" )
 hist(samples_stat[1, ], breaks= 30, probability = TRUE, 
 xlab="estimated mean", main= paste("Means of Poisson with lambda = ",lambda), cex.main=1.0, col="#6AE7CF",border="white")
 abline(v = mean(data), col = "#FF8C45", lwd = 4)
-abline(v = mean(samples_stat[2,]), col = "#AF78CB", lwd = 4)
+abline(v = mean(samples_stat[1,]), col = "#AF78CB", lwd = 4)
 legend("topright",c("Data mean","Poisson Mean"),cex=.7,col=c("#FF8C45","#AF78CB"),lty=1:1)
 
 hist(samples_stat[2, ], breaks= 30, probability = TRUE, 
@@ -454,11 +454,11 @@ Rain & 0.4 & 0.3 & 0.3
 \end{bmatrix}
 $$
 
-**It can be shown, using linear algebra, that in the long run this Markov chain will visit the states according to the *stationary* distribution:**
+**It can be shown, using linear algebra, that in the long run this Markov chain will visit the states according to the *stationary* distribution (data corrected according to https://maths-people.anu.edu.au/~johnm/r-book/3edn/updates/updates2011.pdf):**
 $$
 \begin{matrix}
 Sun & Cloud & Rain\\
-0.641 & 0.208 & 0.151
+0.429 & 0.286 & 0.286
 \end{matrix}
 $$
 
@@ -484,26 +484,27 @@ transitionMatrix <-
          nrow = 3, ncol = 3, byrow = TRUE)
 print(transitionMatrix)
 
+set.seed(200)
 samples <- Markov(N = 1000, P = transitionMatrix)
 
-print("\nStates  {0: 'Sunny', 1: 'Cloudy', 2: 'Rain'}")
+print("States  {0: 'Sunny', 1: 'Cloudy', 2: 'Rain'}; Number of samples 1000")
 samples %>% 
   table %>% 
   prop.table
 
-#prop <- function(samples, element) {
-#  return( length(samples[samples == element]) / length(samples) )
-#}
-#print(paste("Sun:", prop(samples, 0)))
-#samples %>% prop(., 1) %>% paste("Cloud:", .)
-#samples %>% prop(., 2) %>% paste("Rain:", .)
+samples <- Markov(N = 10000, P = transitionMatrix)
+
+print("States  {0: 'Sunny', 1: 'Cloudy', 2: 'Rain'}; Number of samples 10000")
+samples %>% 
+  table %>% 
+  prop.table
 ```
-The empirical proportions with a sample of 1000 elements are not the exact same as the theoretical ones above, as a 1000 elements is not enough for showing the ergodicity theorem. Still, the order is respected (most of the times), namely $p(X = 0) > p(X = 1) > p(X = 2)$ and $p(X = 0)$ is significantly higher and the remaing two are closer to each other.
+The empirical proportions with a sample of 1000 elements seem to follow the theoretical distribution shown above. To confirm this we tried al so with a sample of 10000 elements and observed that the behaviour is equivalent. Obiviously, they cannot be exactly the same as we are comparing empirical results with theoretical ones.
 
 **b. Here is code that calculates rolling averages of the proportions over a number of simulations and plots the result. It uses the function rollmean() from the zoo package-**
 ```{r}
 plotmarkov <-
-  function(n=1000000, start=1, window=10000, transition=Pb, npanels=3){
+  function(n=1000, start=1, window=100, transition=transitionMatrix, npanels=3){
     xc2 <- Markov(n, start, transition)
     mav0 <- rollmean(as.integer(xc2==0), window) #mav0 and mav1 are equal
     mav1 <- rollmean(as.integer(xc2==0), window) #why having two moving averages that are equal ??
@@ -517,10 +518,20 @@ plotmarkov <-
           scales=list(x=list(relation="free"))))
   }
 
-plotmarkov(transition = transitionMatrix)
+set.seed(50)
+plotmarkov()
+plotmarkov(window = 750)
+plotmarkov(10000, window = 7500)
+plotmarkov(100000, window = 75000)
+plotmarkov(110000, window = 75000)
+plotmarkov(100000, window = 80000)
+plotmarkov(100000, window = 90000)
+plotmarkov(1000000, window = 750000)
 ```
 
 **Try varying the number of simulations and the width of the window. How wide a window is needed to get a good sense of the stationary distribution? This series settles down rather quickly to its stationary distribution (it “burns in” quite quickly). A reasonable width of window is, however, needed to give an accurate indication of the stationary distribution.**
+
+The window size must cover most part of the sample size (i.e. 75%). It is possible to observe the 4-th and the last plot, respectively generated by `plotmarkov(100000, window = 75000)` and `plotmarkov(1000000, window = 750000)` shows clearly how the rolling mean is stable around $0.429$.
 
 ## Exercise 6 cap 4
 **Here we generate random normal numbers with a sequential dependence structure:**
@@ -595,7 +606,6 @@ var(av1)
 ## Exercise 3.3
 **Rewrite the following, replacing the loop with efficient code:**
 ```{r}
-
 original <-  function(n = 100000){
   z <- rnorm(n)
   zneg <- 0; j <- 1
@@ -609,8 +619,7 @@ original <-  function(n = 100000){
 }
 
 optimised <- function(n = 100000){
-  z <- rnorm(n)
-  return( Filter(function(el) el < 0, z) )
+  return( Filter(function(el) el < 0, rnorm(n)) )
 }
 
 # Best solution -------------------------
@@ -657,29 +666,27 @@ long this takes and assess the mean absolute error of the result.**
 **4. What do you conclude?**
 
 ```{r}
-manual <-  function(n) {
-  set.seed(0)
-  A <- matrix(runif(n*n),n,n)
-  x.true <- runif(n)
-  y <- as.vector(A%*%x.true)
-  A_inv <- solve(A)
-  x_1 <-  as.vector(A_inv%*%y)
-  err1 <- mean(abs(x_1-x.true))
-  print(err1)
-  return(x_1)
-}
-system.time(manual(1000))
+library(dplyr)
+set.seed(0)
+n <- 1000
+A <- matrix(runif(n*n),n,n)
+x.true <- runif(n)
+y <- A %*% x.true 
 
-auto <- function(n){
-  set.seed(0)
-  A <- matrix(runif(n*n),n,n)
-  x.true <- runif(n)
-  y <- as.vector(A%*%x.true)
-  x_2 <- solve(A,y)
-  err2 <- mean(abs(x_2-x.true))
-  print(err2)
-  return(x_2)
+manual <- function(A, xTrue, y) {
+  A_inv <- solve(A)
+  x <- A_inv %*% y 
+  mean(abs(x-x.true)) %>% print
+  return(x)
 }
-system.time(auto(1000))
+
+auto <- function(A, xTrue, y){
+  x <- solve(A,y)
+  mean(abs(x-x.true)) %>% print
+  return(x)
+}
+
+system.time(manual(A, x.true, y))
+system.time(auto(A, x.true, y))
 ```
 We can conclude that computing the inverse matrix $A^{-1}$ and then explicitly find $x_1$ is less time efficient and results in a greter error when compared with using \mathbf{solve} to directly solve for $x$ without computing the inverse matrix.
