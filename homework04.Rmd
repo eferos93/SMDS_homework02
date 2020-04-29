@@ -45,10 +45,7 @@ par (mfrow=c(2,1),mar=c(4,4,2,2), oma=c(0,0,0,0))
 hist(samples_stat[1, ], breaks= 40, probability = TRUE, 
      xlab=expression(s^2), main= "Unbiased variance estimator",
      cex.main=1.0, col="#6AE7CF", border="white")
-
-curve(((n-1)/sigma^2) * dchisq(x * ((n-1)/sigma^2), df = n - 1),
-      add = TRUE, col="#368D91", lwd=2, main="N(0,1)")
-
+#curve(((n-1)/sigma^2) * dchisq(x * ((n-1)/sigma^2), df = n - 1), add = TRUE, col="#368D91", lwd=2, main="N(0,1)")
 abline(v = sigma, col = "#FF8C45", lwd = 4)
 abline(v = mean(samples_stat[1,]), col = "#AF78CB", lwd = 2)
 legend("topright",c("True Variance","Estimated Variance Mean"),cex=.9,col=c("#FF8C45","#AF78CB"),lty=1:1)
@@ -57,9 +54,6 @@ legend("topright",c("True Variance","Estimated Variance Mean"),cex=.9,col=c("#FF
 hist(samples_stat[2, ], breaks= 40, probability = TRUE, 
      xlab=bquote(s_b^2), main= "Biased variance estimator",
      cex.main=1.0,col="#6AE7CF",border="white")
-#overlap the true distribution for the sample mean
-curve(((n)/sigma^2) * dchisq(x * ((n)/sigma^2), df = n - 1),
-      add = TRUE, col="#368D91", lwd=2, main="N(0,1)")
 abline(v = sigma, col = "#FF8C45", lwd = 4)
 abline(v = mean(samples_stat[2,]), col = "#AF78CB", lwd = 3)
 legend("topright", c("True Variance","Estimated Variance Mean"), 
