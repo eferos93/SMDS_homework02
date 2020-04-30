@@ -988,17 +988,17 @@ print( &quot;Original: &quot; )</code></pre>
 <pre><code>## [1] &quot;Original: &quot;</code></pre>
 <pre class="r"><code>system.time(original(10000000))</code></pre>
 <pre><code>##    user  system elapsed 
-##   3.945   0.196   4.143</code></pre>
+##   4.159   0.188   4.380</code></pre>
 <pre class="r"><code>print( &quot;Optimised: &quot; )</code></pre>
 <pre><code>## [1] &quot;Optimised: &quot;</code></pre>
 <pre class="r"><code>system.time(optimised(10000000))</code></pre>
 <pre><code>##    user  system elapsed 
-##   7.957   0.072   8.029</code></pre>
+##   8.078   0.080   8.159</code></pre>
 <pre class="r"><code>print(&quot;Optimised v2: &quot;)</code></pre>
 <pre><code>## [1] &quot;Optimised v2: &quot;</code></pre>
 <pre class="r"><code>system.time(optimised_v2(10000000))</code></pre>
 <pre><code>##    user  system elapsed 
-##   0.954   0.060   1.014</code></pre>
+##   1.043   0.072   1.115</code></pre>
 <p><strong>Confirm that your rewrite is faster but gives the same result (use system.time()).</strong></p>
 <p>We proceeded with two attemps, one with the function <code>Filter</code>, which failed as it resulted in a far worst performance that the original solution. Our solution is contained in the function <code>optimised_v2</code> by using the expression <code>z[z &lt; 0]</code> which returns a new array with just the negative element of <code>z</code></p>
 </div>
@@ -1023,24 +1023,24 @@ y &lt;- A %*% x.true
 manual &lt;- function(A, xTrue, y) {
   A_inv &lt;- solve(A)
   x &lt;- A_inv %*% y 
-  mean(abs(x-x.true)) %&gt;% print
+  mean(abs(x-xTrue)) %&gt;% print
   return(x)
 }
 
 auto &lt;- function(A, xTrue, y){
   x &lt;- solve(A,y)
-  mean(abs(x-x.true)) %&gt;% print
+  mean(abs(x-xTrue)) %&gt;% print
   return(x)
 }
 
 system.time(manual(A, x.true, y))</code></pre>
 <pre><code>## [1] 2.974998e-11</code></pre>
 <pre><code>##    user  system elapsed 
-##   0.412   0.076   0.132</code></pre>
+##   0.449   0.049   0.167</code></pre>
 <pre class="r"><code>system.time(auto(A, x.true, y))</code></pre>
 <pre><code>## [1] 7.835603e-13</code></pre>
 <pre><code>##    user  system elapsed 
-##   0.168   0.028   0.053</code></pre>
+##   0.160   0.032   0.051</code></pre>
 <p>We can conclude that computing the inverse matrix <span class="math inline">\(A^{-1}\)</span> and then explicitly find <span class="math inline">\(x_1\)</span> is less time efficient and results in a greter error when compared with using  to directly solve for <span class="math inline">\(x\)</span> without computing the inverse matrix.</p>
 </div>
 </div>

@@ -677,13 +677,13 @@ y <- A %*% x.true
 manual <- function(A, xTrue, y) {
   A_inv <- solve(A)
   x <- A_inv %*% y 
-  mean(abs(x-x.true)) %>% print
+  mean(abs(x-xTrue)) %>% print
   return(x)
 }
 
 auto <- function(A, xTrue, y){
   x <- solve(A,y)
-  mean(abs(x-x.true)) %>% print
+  mean(abs(x-xTrue)) %>% print
   return(x)
 }
 
